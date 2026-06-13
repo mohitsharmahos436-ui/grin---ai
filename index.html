@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRIN AI — The Omniscient Oracle</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Exo+2:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+  :root {
+    --gold: #FFD700;
+    --deep-gold: #B8860B;
+    --cosmic-red: #FF2244;
+    --energy-blue: #00BFFF;
+    --plasma: #FF6B00;
+    --void: #050510;
+    --panel: rgba(10,10,40,0.85);
+    --border-glow: rgba(255,215,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--void);
+    font-family: 'Exo 2', sans-serif;
+    color: #e8e8ff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ── Cosmic background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,100,0,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 20% 80%, rgba(0,100,255,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 60% at 80% 50%, rgba(180,0,255,0.06) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  #stars {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite var(--delay, 0s);
+  }
+
+  @keyframes twinkle {
+    0%,100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.4); }
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 28px 20px 16px;
+    border-bottom: 1px solid rgba(255,215,0,0.2);
+    background: linear-gradient(180deg, rgba(5,5,20,0.98) 0%, transparent 100%);
+  }
+
+  .logo-ring {
+    display: inline-block;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 20px var(--gold), 0 0 60px rgba(255,215,0,0.3), inset 0 0 20px rgba(255,215,0,0.1);
+    margin-bottom: 12px;
+    animation: spin-ring 6s linear infinite;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px;
+    background: radial-gradient(circle, rgba(255,100,0,0.3) 0%, rgba(0,0,30,0.8) 70%);
+  }
+
+  @keyframes spin-ring {
+    0% { box-shadow: 0 0 20px var(--gold), 0 0 60px rgba(255,215,0,0.3), inset 0 0 20px rgba(255,215,0,0.1); }
+    50% { box-shadow: 0 0 30px #FF6B00, 0 0 80px rgba(255,107,0,0.4), inset 0 0 30px rgba(255,107,0,0.2); }
+    100% { box-shadow: 0 0 20px var(--gold), 0 0 60px rgba(255,215,0,0.3), inset 0 0 20px rgba(255,215,0,0.1); }
+  }
+
+  .brand {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: 900;
+    background: linear-gradient(135deg, #FFD700 0%, #FF6B00 40%, #FFD700 70%, #FFF 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-shadow: none;
+  }
+
+  .tagline {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: rgba(255,215,0,0.6);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .source-badges {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .badge {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.15em;
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  .badge-claude { border-color: rgba(255,107,0,0.6); color: #FF8C40; background: rgba(255,107,0,0.08); animation-delay: 0s; }
+  .badge-web   { border-color: rgba(0,191,255,0.6); color: #00BFFF; background: rgba(0,191,255,0.08); animation-delay: 0.4s; }
+  .badge-live  { border-color: rgba(0,255,100,0.6); color: #00FF88; background: rgba(0,255,100,0.08); animation-delay: 0.8s; }
+
+  @keyframes badge-pulse {
+    0%,100% { opacity: 0.7; } 50% { opacity: 1; }
+  }
+
+  /* ── Chat area ── */
+  #chat-wrap {
+    position: relative; z-index: 5;
+    max-width: 820px; margin: 0 auto;
+    padding: 20px 16px 160px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  .msg {
+    display: flex; gap: 12px; align-items: flex-start;
+    animation: msg-in 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    border: 2px solid;
+  }
+
+  .msg.user .avatar {
+    background: rgba(0,100,180,0.2);
+    border-color: rgba(0,191,255,0.5);
+    box-shadow: 0 0 12px rgba(0,191,255,0.3);
+  }
+
+  .msg.ai .avatar {
+    background: radial-gradient(circle, rgba(255,100,0,0.3), rgba(5,5,20,0.9));
+    border-color: rgba(255,215,0,0.6);
+    box-shadow: 0 0 16px rgba(255,215,0,0.4);
+    animation: avatar-glow 3s ease-in-out infinite;
+  }
+
+  @keyframes avatar-glow {
+    0%,100% { box-shadow: 0 0 16px rgba(255,215,0,0.4); }
+    50%      { box-shadow: 0 0 28px rgba(255,107,0,0.7), 0 0 50px rgba(255,215,0,0.2); }
+  }
+
+  .bubble {
+    max-width: 78%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    font-size: 15px;
+    line-height: 1.65;
+    position: relative;
+  }
+
+  .msg.user .bubble {
+    background: rgba(0,80,160,0.25);
+    border: 1px solid rgba(0,191,255,0.25);
+    border-top-right-radius: 4px;
+    color: #c8e8ff;
+  }
+
+  .msg.ai .bubble {
+    background: rgba(15,10,40,0.8);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-top-left-radius: 4px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(255,215,0,0.06);
+  }
+
+  .msg.ai .bubble::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255,215,0,0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .source-tag {
+    display: inline-block;
+    font-family: 'Orbitron', monospace;
+    font-size: 8px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    letter-spacing: 0.1em;
+  }
+
+  .source-tag.claude { background: rgba(255,107,0,0.15); color: #FF8C40; border: 1px solid rgba(255,107,0,0.3); }
+  .source-tag.web    { background: rgba(0,191,255,0.12); color: #00BFFF; border: 1px solid rgba(0,191,255,0.3); }
+
+  /* Typing indicator */
+  .typing { display: flex; gap: 5px; padding: 6px 0; align-items: center; }
+  .typing span {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; background: var(--plasma); }
+  .typing span:nth-child(3) { animation-delay: 0.4s; background: var(--energy-blue); }
+
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-8px); opacity: 1; }
+  }
+
+  /* Energy divider */
+  .energy-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--plasma), var(--energy-blue), transparent);
+    opacity: 0.3;
+    margin: 4px 0;
+    animation: energy-flow 3s linear infinite;
+  }
+  @keyframes energy-flow {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* ── Input dock ── */
+  #dock {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    z-index: 20;
+    padding: 16px 16px 20px;
+    background: linear-gradient(0deg, rgba(5,5,16,0.98) 60%, transparent 100%);
+  }
+
+  .dock-inner {
+    max-width: 820px; margin: 0 auto;
+    display: flex; gap: 10px; align-items: flex-end;
+  }
+
+  #quick-btns {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    max-width: 820px; margin: 0 auto 10px;
+    justify-content: center;
+  }
+
+  .quick-btn {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px; font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,215,0,0.3);
+    background: rgba(255,215,0,0.06);
+    color: rgba(255,215,0,0.8);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .quick-btn:hover {
+    background: rgba(255,215,0,0.15);
+    border-color: rgba(255,215,0,0.6);
+    color: var(--gold);
+    box-shadow: 0 0 12px rgba(255,215,0,0.2);
+  }
+
+  #input-box {
+    flex: 1;
+    background: rgba(10,10,35,0.9);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 15px;
+    color: #e8e8ff;
+    outline: none;
+    resize: none;
+    min-height: 48px; max-height: 140px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(8px);
+    line-height: 1.5;
+  }
+
+  #input-box::placeholder { color: rgba(200,200,255,0.3); }
+
+  #input-box:focus {
+    border-color: rgba(255,215,0,0.7);
+    box-shadow: 0 0 0 2px rgba(255,215,0,0.1), 0 0 20px rgba(255,215,0,0.1);
+  }
+
+  #send-btn {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,215,0,0.5);
+    background: linear-gradient(135deg, rgba(255,107,0,0.3), rgba(255,215,0,0.2));
+    color: var(--gold);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(255,215,0,0.15);
+  }
+
+  #send-btn:hover {
+    background: linear-gradient(135deg, rgba(255,107,0,0.5), rgba(255,215,0,0.35));
+    box-shadow: 0 0 20px rgba(255,215,0,0.35);
+    transform: scale(1.05);
+  }
+
+  #send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .web-toggle {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    justify-content: flex-end;
+    max-width: 820px; margin: 0 auto 8px;
+  }
+
+  .web-toggle input { display: none; }
+
+  .toggle-track {
+    width: 36px; height: 20px;
+    background: rgba(0,60,120,0.4);
+    border: 1px solid rgba(0,191,255,0.3);
+    border-radius: 10px;
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  .toggle-thumb {
+    width: 14px; height: 14px;
+    background: rgba(0,191,255,0.5);
+    border-radius: 50%;
+    position: absolute; top: 2px; left: 2px;
+    transition: all 0.2s;
+  }
+
+  .web-toggle input:checked ~ .toggle-track { background: rgba(0,150,255,0.3); border-color: rgba(0,191,255,0.7); }
+  .web-toggle input:checked ~ .toggle-track .toggle-thumb { left: 18px; background: var(--energy-blue); box-shadow: 0 0 8px var(--energy-blue); }
+
+  .toggle-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 9px; letter-spacing: 0.15em;
+    color: rgba(0,191,255,0.7);
+  }
+
+  /* Welcome screen */
+  .welcome {
+    text-align: center;
+    padding: 40px 20px;
+    animation: msg-in 0.6s ease both;
+  }
+
+  .welcome h2 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(16px, 4vw, 26px);
+    background: linear-gradient(135deg, var(--gold), var(--plasma));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .welcome p {
+    color: rgba(200,200,255,0.5);
+    font-size: 14px; line-height: 1.7;
+    max-width: 500px; margin: 0 auto;
+  }
+
+  .power-orb {
+    width: 100px; height: 100px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #FF8C40 0%, #FF2244 40%, #8800FF 70%, #000020 100%);
+    box-shadow: 0 0 40px rgba(255,100,0,0.5), 0 0 80px rgba(255,215,0,0.2);
+    animation: orb-pulse 3s ease-in-out infinite;
+    font-size: 48px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  @keyframes orb-pulse {
+    0%,100% { box-shadow: 0 0 40px rgba(255,100,0,0.5), 0 0 80px rgba(255,215,0,0.2); transform: scale(1); }
+    50% { box-shadow: 0 0 60px rgba(255,100,0,0.7), 0 0 120px rgba(255,215,0,0.35); transform: scale(1.04); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,215,0,0.2); border-radius: 4px; }
+
+  /* Prose formatting */
+  .bubble p { margin-bottom: 10px; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble strong { color: var(--gold); font-weight: 700; }
+  .bubble em { color: #80CFFF; }
+  .bubble ul, .bubble ol { padding-left: 18px; margin-bottom: 8px; }
+  .bubble li { margin-bottom: 4px; }
+  .bubble a { color: var(--energy-blue); }
+  .bubble code { font-family: monospace; background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .bubble { max-width: 88%; font-size: 14px; }
+    .logo-ring { width: 60px; height: 60px; font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<header>
+  <div class="logo-ring" style="margin: 0 auto 10px;">⚡</div>
+  <div class="brand">GRIN AI</div>
+  <div class="tagline">The Omniscient Oracle · Powered by Universal Intelligence</div>
+  <div class="source-badges">
+    <span class="badge badge-claude">⚡ Claude AI</span>
+    <span class="badge badge-web">🌐 Live Web Search</span>
+    <span class="badge badge-live">🔮 Real-Time Intel</span>
+  </div>
+</header>
+
+<div id="chat-wrap">
+  <div class="welcome">
+    <div class="power-orb">🔱</div>
+    <h2>The Oracle Awakens</h2>
+    <p>I channel knowledge from the cosmos — Claude's intelligence fused with live web search. Ask me anything: science, news, history, philosophy, code, or the mysteries of the universe.</p>
+  </div>
+</div>
+
+<div id="dock">
+  <div id="quick-btns">
+    <button class="quick-btn" onclick="quickAsk('What is the latest news in science today?')">🔬 Latest Science</button>
+    <button class="quick-btn" onclick="quickAsk('Explain quantum computing simply')">⚛️ Quantum</button>
+    <button class="quick-btn" onclick="quickAsk('What is happening in space exploration right now?')">🚀 Space News</button>
+    <button class="quick-btn" onclick="quickAsk('Tell me something that will blow my mind')">💥 Mind Blow</button>
+  </div>
+
+  <label class="web-toggle">
+    <input type="checkbox" id="web-toggle" checked>
+    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+    <span class="toggle-label">🌐 LIVE WEB SEARCH</span>
+  </label>
+
+  <div class="dock-inner">
+    <textarea id="input-box" placeholder="Ask the Oracle anything… no question is too small or too vast ⚡" rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="send-btn" onclick="sendMessage()">⚡</button>
+  </div>
+</div>
+
+<script>
+  // ── Stars ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      top:${Math.random()*100}%; left:${Math.random()*100}%;
+      --d:${2+Math.random()*4}s; --delay:-${Math.random()*5}s;
+    `;
+    starsEl.appendChild(s);
+  }
+
+  const chatWrap = document.getElementById('chat-wrap');
+  const inputBox  = document.getElementById('input-box');
+  const sendBtn   = document.getElementById('send-btn');
+  const webToggle = document.getElementById('web-toggle');
+  let isLoading = false;
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function quickAsk(text) {
+    inputBox.value = text;
+    autoResize(inputBox);
+    sendMessage();
+  }
+
+  function appendMsg(role, html, sourceType) {
+    const welcome = chatWrap.querySelector('.welcome');
+    if (welcome) welcome.remove();
+
+    const wrap = document.createElement('div');
+    wrap.className = `msg ${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = role === 'ai' ? '⚡' : '👤';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    if (role === 'ai' && sourceType) {
+      const tag = document.createElement('div');
+      tag.className = `source-tag ${sourceType === 'web' ? 'web' : 'claude'}`;
+      tag.textContent = sourceType === 'web' ? '🌐 Live Search + Claude' : '⚡ Claude AI';
+      bubble.appendChild(tag);
+    }
+
+    const content = document.createElement('div');
+    content.innerHTML = html;
+    bubble.appendChild(content);
+
+    wrap.appendChild(avatar);
+    wrap.appendChild(bubble);
+    chatWrap.appendChild(wrap);
+
+    const line = document.createElement('div');
+    line.className = 'energy-line';
+    chatWrap.appendChild(line);
+
+    chatWrap.scrollTop = chatWrap.scrollHeight;
+    return bubble;
+  }
+
+  function showTyping() {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ai'; wrap.id = 'typing-row';
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar'; avatar.textContent = '⚡';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.innerHTML = `<div class="typing"><span></span><span></span><span></span></div><div style="font-family:'Orbitron',monospace;font-size:9px;color:rgba(255,215,0,0.4);letter-spacing:0.15em;margin-top:4px;">CHANNELING COSMIC INTELLIGENCE…</div>`;
+    wrap.appendChild(avatar); wrap.appendChild(bubble);
+    chatWrap.appendChild(wrap);
+    chatWrap.scrollTop = chatWrap.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-row');
+    if (t) t.remove();
+  }
+
+  function formatText(text) {
+    // Basic markdown-like formatting
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/^/, '<p>').replace(/$/, '</p>');
+  }
+
+  async function sendMessage() {
+    const text = inputBox.value.trim();
+    if (!text || isLoading) return;
+
+    isLoading = true;
+    sendBtn.disabled = true;
+    appendMsg('user', `<p>${text.replace(/</g,'&lt;')}</p>`);
+    inputBox.value = ''; autoResize(inputBox);
+    showTyping();
+
+    const useWeb = webToggle.checked;
+
+    try {
+      // Secure: API key lives on the server, never in the browser
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, useWeb })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      if (!res.ok) throw new Error(data.error || 'Server error');
+
+      appendMsg('ai', formatText(data.text || 'The cosmic channels are momentarily silent. Please ask again.'), data.usedWeb ? 'web' : 'claude');
+
+    } catch (err) {
+      removeTyping();
+      appendMsg('ai', `<p>⚡ The cosmic channels encountered interference: <em>${err.message}</em>. The Oracle shall try again.</p>`, 'claude');
+    }
+
+    isLoading = false;
+    sendBtn.disabled = false;
+    inputBox.focus();
+  }
+</script>
+</body>
+</html>
